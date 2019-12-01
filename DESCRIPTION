@@ -1,0 +1,36 @@
+Package: mlr3learners.lightgbm
+Title: Title goes here
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Lorenz A.",
+           family = "Kapsner",
+           role = c("cre", "aut"),
+           email = "lorenz.kapsner@gmail.com",
+           comment = c(ORCID = "0000-0003-1866-860X"))
+Description: LightGBM functionality for mlr3 framework.
+License: LGPL (>= 2.1)
+LazyData: true
+URL: https://github.com/kapsner/mlr3learners.lightgbm
+BugReports: https://github.com/kapsner/mlr3learners.lightgbm/issues
+Encoding: UTF-8
+Copyright: Lorenz A. Kapsner
+Date: 2019-12-01
+VignetteBuilder: knitr
+biocViews: 
+Depends: 
+    R (>= 2.10)
+Imports: 
+    data.table,
+    reticulate,
+    R6,
+    paradox,
+    mlr3misc,
+    viridis,
+    ggplot2,
+    mlr3
+Suggests: 
+    testthat,
+    lintr,
+    rmarkdown,
+    qpdf,
+    knitr
