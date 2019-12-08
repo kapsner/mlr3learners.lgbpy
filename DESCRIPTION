@@ -34,3 +34,4 @@ Suggests:
     rmarkdown,
     qpdf,
     knitr
+RoxygenNote: 7.0.2
