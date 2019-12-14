@@ -25,7 +25,7 @@ my_desc$del("Maintainer")
 my_desc$set_version("0.0.0.9000")
 
 # The title of your package
-my_desc$set(Title = "Title goes here")
+my_desc$set(Title = "mlr3: LightGBM learner")
 
 # The description of your package
 my_desc$set(Description = "LightGBM functionality for mlr3 framework.")
@@ -42,11 +42,6 @@ my_desc$set("VignetteBuilder" = "knitr")
 
 # License
 my_desc$set("License", "LGPL-3")
-
-# for BioConductor stuff
-# see: https://bioinformatics.stackexchange.com/questions/3365/r-package-development-how-does-one-automatically-install-bioconductor-packages
-# and: https://github.com/r-lib/devtools/issues/700
-my_desc$set("biocViews" = "")
 
 # Save everyting
 my_desc$write(file = "DESCRIPTION")
@@ -116,6 +111,8 @@ usethis::use_git_ignore("!/LICENSE.md")
 usethis::use_git_ignore("!/man/")
 usethis::use_git_ignore("!NAMESPACE")
 usethis::use_git_ignore("!/R/")
+usethis::use_git_ignore("!/tests/")
+usethis::use_git_ignore("!/vignettes/")
 usethis::use_git_ignore("!/README.md")
 usethis::use_git_ignore("!/tests/")
 usethis::use_git_ignore("/.Rhistory")

@@ -1,0 +1,140 @@
+---
+title: "mlr3learners.lightgbm - Multiclass Example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{mlr3learners_lightgbm}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mlr3learners.lightgbm)
+library(mlr3)
+library(paradox)
+library(mlbench)
+```
+
+First of all, we need to manipulate the target variable. LightGBM needs the targets for classification to be of type 'integer' starting with '0'. However, mlr3 needs the target to be of type 'factor'. So first of all, lets transform the factor to an appropriate integer and store it again as factor. The `classif.lightgbm`-learner will then do the rest.
+
+```{r}
+data("Glass")
+dataset <- data.table::as.data.table(Glass)
+dataset[, ("Type") := factor(as.numeric(get("Type")) - 1L)]
+
+set.seed(17)
+train_set <- caret::createDataPartition(
+  y = dataset$Type,
+  times = 1,
+  p = 0.6,
+  list = FALSE
+)
+
+holdout <- setdiff(1:nrow(dataset), train_set)
+
+set.seed(17)
+valid_set <- holdout[caret::createDataPartition(
+  y = dataset$Type[holdout],
+  times = 1,
+  p = 0.5
+)[[1]]]
+test_set <- setdiff(1:nrow(dataset), c(train_set, valid_set))
+
+task <- TaskClassif$new(
+  id = "Glass",
+  target = "Type",
+  backend = dataset
+)
+```
+
+```{r}
+mlr3viz::autoplot(task)
+#mlr3viz::autoplot(task, type = "pairs")
+```
+
+
+# Define Learner and Parameters
+
+```{r}
+learner <- mlr3::lrn("classif.lightgbm")
+learner$param_set$values <- list("metric" = "multi_logloss")
+learner$param_set$values <- list("learning_rate" = 0.01)
+learner$param_set$values <- list("bagging_fraction" = 0.3)
+learner$param_set$values <- list("seed" = 17L)
+learner$param_set$values <- list("num_threads" = 0L)
+learner$param_set$values <- list("early_stopping_round" = 1000L)
+learner$param_set$values <- list("num_iterations" = 10000L)
+```
+
+```{r}
+learner$valids <- task$data(rows = valid_set)
+
+learner$train(task, row_ids = train_set)
+learner$model$best_iteration
+learner$model$best_score
+
+predictions = learner$predict(task, row_ids = test_set)
+predictions$confusion
+predictions$score(mlr3::msr("classif.logloss"))
+
+importance <- learner$importance()
+importance$raw_values
+importance$plot
+```
+
+
+# Create Autotuner to find best num_iter
+
+```{r}
+learner$param_set$values <- list("num_threads" = 1L)
+resampling <- mlr3::rsmp(.key = "cv", folds = 5L)
+print(resampling)
+
+measures <- mlr3::msr("classif.logloss")
+
+tune_ps <- ParamSet$new(
+  list(
+  ParamInt$new(
+    id = "num_leaves",
+    lower = 6L,
+    upper = 60L
+  )
+))
+
+terminator <- mlr3tuning::term("stagnation", iters = 50)
+
+tuner <- mlr3tuning::tnr("random_search")
+
+at <- mlr3tuning::AutoTuner$new(
+  learner = learner,
+  resampling = resampling,
+  measures = measures,
+  tune_ps = tune_ps,
+  terminator = terminator,
+  tuner = tuner
+)
+```
+
+
+```{r}
+at$train(task)
+
+at$tuning_result
+
+predictions = at$predict(task, row_ids = test_set)
+predictions$confusion
+predictions$score(mlr3::msr("classif.logloss"))
+
+importance <- at$learner$importance()
+importance$raw_values
+importance$plot
+```
+

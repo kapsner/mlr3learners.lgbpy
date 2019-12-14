@@ -1,17 +1,14 @@
-#' @title Classification LightGBM Learner
+#' @title Regression LightGBM Learner
 #'
-#' @aliases mlr_learners_classif.lightgbm
-#' @format [R6::R6Class] inheriting from [mlr3::LearnerClassif].
+#' @aliases mlr_learners_regr.lightgbm
+#' @format [R6::R6Class] inheriting from [mlr3::LearnerRegr].
 #'
-#' @import data.table
-#' @import paradox
-#' @import reticulate
-#' @importFrom mlr3 mlr_learners LearnerClassif
+#' @importFrom mlr3 mlr_learners LearnerRegr
 #'
 #' @export
-LearnerClassifLightGBM = R6::R6Class(
-  "LearnerClassifLightGBM",
-  inherit = LearnerClassif,
+LearnerRegrLightGBM = R6::R6Class(
+  "LearnerRegrLightGBM",
+  inherit = LearnerRegr,
 
   private = list(
     lgb_learner = NULL
@@ -37,14 +34,12 @@ LearnerClassifLightGBM = R6::R6Class(
       super$initialize(
         # see the mlr3book for a description:
         # https://mlr3book.mlr-org.com/extending-mlr3.html
-        id = "classif.lightgbm",
+        id = "regr.lightgbm",
         packages = "lightgbm.py",
         feature_types = c("numeric", "factor", "ordered"),
         predict_types = "prob",
         param_set = self$lgb_params,
-        properties = c("twoclass",
-                       "multiclass",
-                       "missings",
+        properties = c("missings",
                        "importance")
       )
     },
@@ -52,8 +47,9 @@ LearnerClassifLightGBM = R6::R6Class(
     train_internal = function(task) {
 
       stopifnot(
-        self$param_set$values[["objective"]] %in%
-              c("binary", "multiclass", "multiclassova", "lambdarank")
+        !(self$param_set$values[["objective"]] %in%
+                c("binary", "multiclass",
+                  "multiclassova", "lambdarank"))
       )
 
       data = task$data()
@@ -91,9 +87,7 @@ LearnerClassifLightGBM = R6::R6Class(
       p <- mlr3misc::invoke(
         .f = private$lgb_learner$predict,
         newdata = newdata,
-        revalue = TRUE,
-        reshape = TRUE # this has only effect for binary classifications
-        # multiclass classifications will always return reshaped data
+        revalue = TRUE
       )
 
       PredictionClassif$new(task = task, prob = p$probabilities)

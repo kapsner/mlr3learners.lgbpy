@@ -1,0 +1,167 @@
+---
+title: "mlr3learners.lightgbm: Mulitclass Classification Example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{mlr3learners_lightgbm_multiclass}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mlr3)
+library(mlr3learners.lightgbm)
+library(mlbench)
+library(lightgbm.py)
+```
+
+# Install the package
+
+In order to use the `mlr3learners.lightgbm` R package, please make sure, the reticulate package is configured properly on your system. If not, you can e.g. install `miniconda`:
+
+```{r eval=FALSE}
+reticulate::install_miniconda(
+  path = reticulate::miniconda_path(),
+  update = TRUE,
+  force = FALSE
+)
+```
+```{r}
+reticulate::py_config()
+```
+
+Use the function `install_py_lightgbm` in order to install the lightgbm python module. This function will first look, if the reticulate package is configured well and if the python module `lightgbm` is aready present. If not, it is automatically installed. 
+
+```{r}
+lightgbm.py::install_py_lightgbm()
+```
+
+# Load the dataset
+
+The data must be provided as a `data.table` object. To simplify the subsequent steps, the target column name and the ID column name are assigned to the variables `target_col` and `id_col`, respectively. 
+
+```{r}
+data("iris")
+dataset <- data.table::as.data.table(iris)
+target_col <- "Species"
+id_col <- NULL
+```
+
+To evaluate the model performance, the dataset is split into a training set and a test set with `sklearn_train_test_split`. This function is a wrapper around python sklearn's [sklearn.model_selection.train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) method and ensures a stratified sampling for categorical target variables. 
+
+```{r}
+split <- lightgbm.py::sklearn_train_test_split(
+  dataset,
+  target_col,
+  split = 0.7,
+  seed = 17,
+  return_only_index = TRUE,
+  stratify = TRUE
+)
+table(dataset[split$train_index, target_col, with = F])
+table(dataset[split$test_index, target_col, with = F])
+```
+
+# Define an mlr3 task 
+
+```{r}
+task <- TaskClassif$new(
+  id = "iris",
+  target = target_col,
+  backend = dataset
+)
+```
+```{r}
+mlr3viz::autoplot(task)
+```
+
+# Instantiate the lightgbm learner 
+
+Initially, the `classif.lightgbm` class needs to be instantiated: 
+
+```{r}
+learner <- mlr3::lrn("classif.lightgbm")
+```
+
+# Configure the learner 
+
+In the next step, some parameters need to be set. `validation_split` can be set in order to further split the training data and evaluate the model performance during training against the validation set. The allowed value range is 0 < validation_split <= 1. This parameter can also be set to "1", taking the whole training data for validation during the model training. For reproducibility, please use the `split_seed` argument. 
+Also the parameters `num_boost_round` and `early_stopping_rounds` can be set here. Please refer to the [LightGBM manual](https://lightgbm.readthedocs.io) for further details these parameters.
+
+```{r}
+learner$split_seed <- 2
+learner$validation_split <- 0.7
+learner$early_stopping_rounds <- 100
+learner$num_boost_round <- 5000
+```
+
+Next, the learner parameters need to be set. At least, the `objective` parameter needs to be provided! Almost all possible parameters have been implemented here. You can inspect them using the following command: 
+
+```{r eval=FALSE}
+lgb_learner$param_set
+```
+
+Please refer to the [LightGBM manual](https://lightgbm.readthedocs.io) for further details on these parameters. 
+
+```{r}
+learner$param_set$values <- list(
+  "objective" = "multiclass",
+  "learning_rate" = 0.01,
+  "seed" = 17L,
+  "metric" = "multi_logloss"
+)
+```
+
+# Train the learner 
+
+The learner is now ready to be trained by using its `train` function. 
+
+```{r results='hide', message=FALSE, warning=FALSE, error=FALSE}
+learner$train(task, row_ids = split$train_index)
+```
+
+# Evaluate the model performance 
+
+Basic metrics can be assesed directly from the python model: 
+
+```{r}
+learner$model$best_iteration
+learner$model$best_score$valid_0
+```
+
+The learner's `predict` function returns an object of mlr3's class `PredictionClassif`.
+
+```{r}
+predictions <- learner$predict(task, row_ids = split$test_index)
+head(predictions$response)
+```
+
+It includes also a confusion  matrix:
+
+```{r}
+predictions$confusion
+```
+
+Further metrics can be calculated by using mlr3 measures:
+
+```{r}
+predictions$score(mlr3::msr("classif.logloss"))
+```
+
+The variable importance plot can be calculated by using the learner's `importance` function:
+
+```{r}
+importance <- learner$importance()
+importance$raw_values
+```
+```{r out.width='80%'}
+plot(importance$plot)
+```
