@@ -76,7 +76,6 @@ usethis::use_package("reticulate", type = "Imports")
 usethis::use_package("R6", type = "Imports")
 usethis::use_package("paradox", type = "Imports")
 usethis::use_package("mlr3misc", type = "Imports")
-usethis::use_package("viridis", type = "Imports")
 usethis::use_package("ggplot2", type = "Imports")
 usethis::use_package("mlr3", type = "Imports")
 
@@ -87,16 +86,17 @@ usethis::use_package("lintr", type = "Suggests")
 usethis::use_package("rmarkdown", type = "Suggests")
 usethis::use_package("qpdf", type = "Suggests")
 usethis::use_package("knitr", type = "Suggests")
+usethis::use_package("mlbench", type = "Suggests")
 
 
 # Remotes (development packages)
 # first, make sure to have installed latest development version
-#devtools::install_github(repo = "devrepo/devpackage", ref = "latest")
+devtools::install_github(repo = "kapsner/lightgbm.py", ref = "master")
 # then put devpackage to imports
-#usethis::use_dev_package("devpackage", type = "Imports")
+usethis::use_dev_package("lightgbm.py", type = "Imports")
 # further info on possible representations, e.g. urls if not gitub:
 # https://cran.r-project.org/web/packages/devtools/vignettes/dependencies.html
-#desc::desc_set_remotes("devrepo/devpackage@latest", file = usethis::proj_get())
+desc::desc_set_remotes("kapsner/lightgbm.py@master", file = usethis::proj_get())
 
 
 # buildignore
