@@ -1,6 +1,9 @@
-# mlr3learnertemplate
+# mlr3learners.lightgbm
 
-[![Build Status](https://travis-ci.org/mlr-org/mlr3learnertemplate.svg?branch=master)](https://travis-ci.org/mlr-org/mlr3learnertemplate)
+<!-- badges: start -->
+[![pipeline status](https://gitlab.com/kapsner/mlr3learners-lightgbm/badges/master/pipeline.svg)](https://gitlab.com/kapsner/mlr3learners-lightgbm/commits/master)
+[![coverage report](https://gitlab.com/kapsner/mlr3learners-lightgbm/badges/master/coverage.svg)](https://gitlab.com/kapsner/mlr3learners-lightgbm/commits/master)
+<!-- badges: end -->
 
 This packages provides a template for adding new learners for [mlr3](https://mlr3.mlr-org.com).
 

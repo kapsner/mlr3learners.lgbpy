@@ -1,6 +1,9 @@
 ---
 title: "mlr3learners.lightgbm: Mulitclass Classification Example"
-output: rmarkdown::html_vignette
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    keep_md: true
 vignette: >
   %\VignetteIndexEntry{mlr3learners_lightgbm_multiclass}
   %\VignetteEncoding{UTF-8}
@@ -14,6 +17,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+dir.create("./png")
 ```
 
 ```{r setup}
@@ -79,7 +83,7 @@ task <- TaskClassif$new(
   backend = dataset
 )
 ```
-```{r}
+```{r eval=FALSE}
 mlr3viz::autoplot(task)
 ```
 
@@ -162,6 +166,17 @@ The variable importance plot can be calculated by using the learner's `importanc
 importance <- learner$importance()
 importance$raw_values
 ```
+```{r results='hide', message=FALSE, warning=FALSE, error=FALSE}
+filename <- "./png/mlr3learners.lgb_imp_multiclass.png"
+grDevices::png(
+    filename = filename,
+    res = 150,
+    height = 1000,
+    width = 1500
+  )
+print(importance$plot)
+grDevices::dev.off()
+```
 ```{r out.width='80%'}
-plot(importance$plot)
+knitr::include_graphics(filename)
 ```

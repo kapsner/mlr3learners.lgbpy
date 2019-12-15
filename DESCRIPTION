@@ -14,7 +14,7 @@ URL: https://github.com/kapsner/mlr3learners.lightgbm
 BugReports: https://github.com/kapsner/mlr3learners.lightgbm/issues
 Encoding: UTF-8
 Copyright: Lorenz A. Kapsner
-Date: 2019-12-14
+Date: 2019-12-15
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
@@ -33,6 +33,7 @@ Suggests:
     rmarkdown,
     qpdf,
     knitr,
-    mlbench
+    mlbench,
+    mlr3viz
 Remotes:  
     kapsner/lightgbm.py@master

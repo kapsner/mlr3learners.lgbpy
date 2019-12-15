@@ -82,6 +82,7 @@ usethis::use_package("rmarkdown", type = "Suggests")
 usethis::use_package("qpdf", type = "Suggests")
 usethis::use_package("knitr", type = "Suggests")
 usethis::use_package("mlbench", type = "Suggests")
+usethis::use_package("mlr3viz", type = "Suggests")
 
 
 # Remotes (development packages)

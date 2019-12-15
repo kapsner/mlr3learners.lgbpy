@@ -6,7 +6,7 @@
 #' @importFrom mlr3 mlr_learners LearnerRegr
 #'
 #' @export
-LearnerRegrLightGBM = R6::R6Class(
+LearnerRegrLightGBM <- R6::R6Class(
   "LearnerRegrLightGBM",
   inherit = LearnerRegr,
 
@@ -52,7 +52,7 @@ LearnerRegrLightGBM = R6::R6Class(
                   "multiclassova", "lambdarank"))
       )
 
-      data = task$data()
+      data <- task$data()
 
       private$lgb_learner$init_data(
         dataset = data,
