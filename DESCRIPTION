@@ -1,6 +1,6 @@
 Package: mlr3learners.lightgbm
 Title: mlr3: LightGBM learner
-Version: 0.0.0.9000
+Version: 0.0.1.9000
 Authors@R: 
     person(given = "Lorenz A.",
            family = "Kapsner",
@@ -14,7 +14,7 @@ URL: https://github.com/kapsner/mlr3learners.lightgbm
 BugReports: https://github.com/kapsner/mlr3learners.lightgbm/issues
 Encoding: UTF-8
 Copyright: Lorenz A. Kapsner
-Date: 2019-12-15
+Date: 2019-12-16
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)

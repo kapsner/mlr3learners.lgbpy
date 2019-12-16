@@ -22,7 +22,7 @@ my_desc$set("Copyright", "Lorenz A. Kapsner")
 my_desc$del("Maintainer")
 
 # Set the version
-my_desc$set_version("0.0.0.9000")
+my_desc$set_version("0.0.1.9000")
 
 # The title of your package
 my_desc$set(Title = "mlr3: LightGBM learner")

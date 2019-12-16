@@ -37,7 +37,7 @@ LearnerRegrLightGBM <- R6::R6Class(
         id = "regr.lightgbm",
         packages = "lightgbm.py",
         feature_types = c("numeric", "factor", "ordered"),
-        predict_types = "prob",
+        predict_types = "response",
         param_set = self$lgb_params,
         properties = c("missings",
                        "importance")
@@ -48,8 +48,8 @@ LearnerRegrLightGBM <- R6::R6Class(
 
       stopifnot(
         !(self$param_set$values[["objective"]] %in%
-                c("binary", "multiclass",
-                  "multiclassova", "lambdarank"))
+            c("binary", "multiclass",
+              "multiclassova", "lambdarank"))
       )
 
       data <- task$data()
@@ -87,10 +87,13 @@ LearnerRegrLightGBM <- R6::R6Class(
       p <- mlr3misc::invoke(
         .f = private$lgb_learner$predict,
         newdata = newdata,
-        revalue = TRUE
+        revalue = FALSE
       )
 
-      PredictionClassif$new(task = task, prob = p$probabilities)
+      PredictionRegr$new(
+        task = task,
+        response = p$response
+      )
 
     },
 
