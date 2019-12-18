@@ -1,0 +1,122 @@
+---
+title: "mlr3learners.lightgbm: Hyperparameter Tuning Example"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    keep_md: true
+vignette: >
+  %\VignetteIndexEntry{mlr3learners_lightgbm_tuning}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+dir.create("./png")
+```
+
+```{r setup}
+library(mlr3)
+library(mlr3learners.lightgbm)
+library(mlbench)
+library(lightgbm.py)
+library(paradox)
+```
+
+```{r include=FALSE}
+reticulate::py_config()
+lightgbm.py::install_py_lightgbm()
+```
+
+# Load the dataset
+
+The data must be provided as a `data.table` object. To simplify the subsequent steps, the target column name and the ID column name are assigned to the variables `target_col` and `id_col`, respectively. 
+
+```{r}
+data("PimaIndiansDiabetes2")
+dataset <- data.table::as.data.table(PimaIndiansDiabetes2)
+target_col <- "diabetes"
+id_col <- NULL
+```
+
+# Define an mlr3 task 
+
+```{r}
+task <- TaskClassif$new(
+  id = "PimaIndiansDiabetes2",
+  target = target_col,
+  backend = dataset
+)
+```
+
+# Instantiate the lightgbm learner 
+
+Initially, the `classif.lightgbm` class needs to be instantiated: 
+
+```{r}
+learner <- mlr3::lrn("classif.lightgbm")
+```
+
+# Configure the learner 
+
+```{r}
+learner$split_seed <- 2
+learner$validation_split <- 0.7
+learner$early_stopping_rounds <- 1000
+learner$num_boost_round <- 5000
+```
+
+Next, the learner parameters need to be set. At least, the `objective` parameter needs to be provided! Almost all possible parameters have been implemented here. You can inspect them using the following command: 
+
+```{r eval=FALSE}
+View(learner$param_set$default)
+```
+
+Please refer to the [LightGBM manual](https://lightgbm.readthedocs.io) for further details on these parameters. 
+
+```{r}
+learner$param_set$values <- list(
+  "objective" = "binary",
+  "learning_rate" = 0.01,
+  "seed" = 17L,
+  "bagging_freq" = 5L
+)
+
+tune_ps <- ParamSet$new(list(
+  ParamDbl$new("bagging_fraction", lower = 0.4, upper = 1),
+  ParamInt$new("min_sum_hessian_in_leaf", lower = 1e-3, upper = 5)
+))
+```
+
+# Resampling strategy
+
+```{r}
+resamp <- mlr3::rsmp("cv")
+measure <- mlr3::msr("classif.auc")
+```
+
+# Train the learner 
+
+```{r}
+terminate <- mlr3tuning::term("stagnation")
+
+instance <- mlr3tuning::TuningInstance$new(
+  task = task,
+  learner = learner,
+  resampling = resamp,
+  measures = measure,
+  param_set = tune_ps,
+  terminator = terminate
+)
+instance
+```
+
+```{r eval=FALSE}
+tuner <- mlr3tuning::tnr("grid_search", resolution = 5)
+result <- tuner$tune(instance)
+```
