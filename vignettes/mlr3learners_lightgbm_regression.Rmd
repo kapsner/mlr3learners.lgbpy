@@ -76,7 +76,7 @@ split <- lightgbm.py::sklearn_train_test_split(
 
 ```{r}
 task <- TaskRegr$new(
-  id = "iris",
+  id = "BostonHousing",
   target = target_col,
   backend = dataset
 )

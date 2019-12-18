@@ -78,7 +78,7 @@ table(dataset[split$test_index, target_col, with = F])
 
 ```{r}
 task <- TaskClassif$new(
-  id = "iris",
+  id = "PimaIndiansDiabetes2",
   target = target_col,
   backend = dataset
 )
