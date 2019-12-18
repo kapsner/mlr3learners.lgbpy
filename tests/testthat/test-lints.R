@@ -23,7 +23,10 @@ test_that(
         "utils.R" = "snake_case"
       ),
       "tests/testthat" = list(
-        "test-lints.R" = NULL
+        "helper.R" = NULL,
+        "test-lints.R" = NULL,
+        "test_learner_classif_lightgbm.R" = NULL,
+        "test_learner_regr_lightgbm.R" = NULL
       )
     )
     for (directory in names(lintlist)) {

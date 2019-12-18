@@ -65,14 +65,10 @@ LearnerRegrLightGBM <- R6::R6Class(
         split_seed = self$split_seed
       )
 
-      if (is.null(self$param_set$values[["num_threads"]])) {
-        private$lgb_learner$param_set$values <- c(
-          self$param_set$values,
-          list("num_threads" = 1L)
-        )
-      } else {
-        self$param_set$values[["num_threads"]] <- 1L
-      }
+      private$lgb_learner$param_set$values <- c(
+        self$param_set$values,
+        list("num_threads" = 1L)
+      )
 
       mlr3misc::invoke(
         .f = private$lgb_learner$train,

@@ -77,6 +77,7 @@ usethis::use_package("mlr3", type = "Imports")
 # Suggests
 usethis::use_package("testthat", type = "Suggests")
 usethis::use_package("lintr", type = "Suggests")
+usethis::use_package("checkmate", type = "Suggests")
 # for vignettes
 usethis::use_package("rmarkdown", type = "Suggests")
 usethis::use_package("qpdf", type = "Suggests")

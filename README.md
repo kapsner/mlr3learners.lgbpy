@@ -1,50 +1,65 @@
-# mlr3learners.lightgbm
+# mlr3learners.lightgbm (!!!under development!!!)
 
 <!-- badges: start -->
 [![pipeline status](https://gitlab.com/kapsner/mlr3learners-lightgbm/badges/master/pipeline.svg)](https://gitlab.com/kapsner/mlr3learners-lightgbm/commits/master)
 [![coverage report](https://gitlab.com/kapsner/mlr3learners-lightgbm/badges/master/coverage.svg)](https://gitlab.com/kapsner/mlr3learners-lightgbm/commits/master)
 <!-- badges: end -->
+ 
+[mlr3learners.lightgbm](https://github.com/kapsner/mlr3learners.lightgbm) brings the [LightGBM gradient booster](https://lightgbm.readthedocs.io) to the [mlr3](https://github.com/mlr-org/mlr3) framework by using the [lightgbm.py](https://github.com/kapsner/lightgbm.py) R implementation. 
 
-This packages provides a template for adding new learners for [mlr3](https://mlr3.mlr-org.com).
+# Installation
 
-Creating the actual learners is covered in the [mlr3book](https://mlr3book.mlr-org.com/extending-mlr3.html).
-This package serves as a starting point for learners to share with others.
-
-
-# Instructions
-
-This repository is a minimal working package with the randomForest learner.
-Fork this repository and adapt the code to your learner.
-
-## Rename Files
-Rename the following files to suit your learner:
-
-- `R/LearnerClassifRandomForest.R`
-- `tests/testthat/test_classif_randomForest.R`
-
-(For regression use the prefix "Regr" instead of "Classif". For example learners see https://github.com/mlr-org/mlr3learners)
-
-## Edit `R/Learner[YourLearner].R`
-
-- Adapt the documentation to suit your learner.
-- Adapt names and the package, learner properties, etc.
-  This is outlined in the [book](https://mlr3book.mlr-org.com/extending-mlr3.html)
-- Adapt `R/zzz.R`. The code in the `.onLoad` function is executed on package load and adds the learner to the `mlr_learners` dictionary.
-
-## Test Your Learner
-If you run `devtools::load_all()` the function `run_autotest()` is available in your global environment.
-The autotest query the learner for its properties to create a custom test suite of tasks for it.
-Make sure that **at least** the following is executed in the unit test `tests/testthat/test_classif_your_learner.R` (adept names to your learner):
+Install the [mlr3learners.lightgbm](https://github.com/kapsner/mlr3learners.lightgbm) R package:
 
 ```r
-learner = LearnerClassifRanger$new()
-expect_learner(learner)
-result = run_autotest(learner)
-expect_true(result, info = result$error)
+install.packages("devtools")
+devtools::install_github("kapsner/mlr3learners.lightgbm")
 ```
 
-## Check your package
-If this runs, your learner should be fine:
+In order to use the `mlr3learners.lightgbm` R package, please make sure, the [reticulate](https://github.com/rstudio/reticulate) R package is configured properly on your system (reticulate version >= 1.13.0.9006) and is pointing to a python environment. If not, you can e.g. install `miniconda`:
+
 ```r
-devtools::check()
+reticulate::install_miniconda(
+  path = reticulate::miniconda_path(),
+  update = TRUE,
+  force = FALSE
+)
+reticulate::py_config()
 ```
+
+Use the function `lightgbm.py::install_py_lightgbm` in order to install the lightgbm python module. This function will first look, if the reticulate package is configured well and if the python module `lightgbm` is aready present. If not, it is automatically installed. 
+
+```r
+lightgbm.py::install_py_lightgbm()
+```
+
+# Example
+
+```r
+library(mlr3)
+task = mlr3::tsk("iris")
+learner = mlr3::lrn("classif.lightgbm")
+
+learner$split_seed <- 2
+learner$validation_split <- 0.7
+learner$early_stopping_rounds <- 1000
+learner$num_boost_round <- 5000
+
+learner$param_set$values <- list(
+  "objective" = "multiclass",
+  "learning_rate" = 0.01,
+  "seed" = 17L
+)
+
+learner$train(task, row_ids = 1:120)
+predictions <- learner$predict(task, row_ids = 121:150)
+```
+
+For further information and examples, please view the `mlr3learners.lightgbm` package vignettes, the [mlr3book](https://mlr3book.mlr-org.com/index.html) and the vignettes of the `lightgbm.py` R package.  
+
+# More Infos:
+
+- RStudio's reticulate R package: https://rstudio.github.io/reticulate/
+- Microsoft's LightGBM: https://lightgbm.readthedocs.io/en/latest/
+- lightgbm.py R package: https://github.com/kapsner/lightgbm.py
+
