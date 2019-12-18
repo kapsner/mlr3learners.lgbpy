@@ -146,12 +146,6 @@ predictions <- learner$predict(task, row_ids = split$test_index)
 head(predictions$response)
 ```
 
-It includes also a confusion  matrix:
-
-```{r}
-predictions$response
-```
-
 Further metrics can be calculated by using mlr3 measures:
 
 ```{r}

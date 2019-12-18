@@ -20,16 +20,20 @@ LearnerRegrLightGBM <- R6::R6Class(
 
     id_col = NULL,
 
-    validation_split = 1,
+    validation_split = NULL,
     split_seed = NULL,
 
-    num_boost_round = 5000,
-    early_stopping_rounds = 100,
+    num_boost_round = NULL,
+    early_stopping_rounds = NULL,
 
     initialize = function() {
 
       private$lgb_learner <- lightgbm.py::LightgbmTrain$new()
       self$lgb_params <- private$lgb_learner$param_set
+
+      self$validation_split <- 1
+      self$num_boost_round <- 5000
+      self$early_stopping_rounds <- 100
 
       super$initialize(
         # see the mlr3book for a description:

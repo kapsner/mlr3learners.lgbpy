@@ -23,16 +23,20 @@ LearnerClassifLightGBM <- R6::R6Class(
 
     id_col = NULL,
 
-    validation_split = 1,
+    validation_split = NULL,
     split_seed = NULL,
 
-    num_boost_round = 5000,
-    early_stopping_rounds = 100,
+    num_boost_round = NULL,
+    early_stopping_rounds = NULL,
 
     initialize = function() {
 
       private$lgb_learner <- lightgbm.py::LightgbmTrain$new()
       self$lgb_params <- private$lgb_learner$param_set
+
+      self$validation_split <- 1
+      self$num_boost_round <- 5000
+      self$early_stopping_rounds <- 100
 
       super$initialize(
         # see the mlr3book for a description:
@@ -53,7 +57,7 @@ LearnerClassifLightGBM <- R6::R6Class(
 
       stopifnot(
         self$param_set$values[["objective"]] %in%
-              c("binary", "multiclass", "multiclassova", "lambdarank")
+          c("binary", "multiclass", "multiclassova", "lambdarank")
       )
 
       data <- task$data()
@@ -92,7 +96,10 @@ LearnerClassifLightGBM <- R6::R6Class(
         # multiclass classifications will always return reshaped data
       )
 
-      PredictionClassif$new(task = task, prob = p$probabilities)
+      PredictionClassif$new(
+        task = task,
+        prob = p$probabilities
+      )
 
     },
 
