@@ -16,7 +16,7 @@ install.packages("devtools")
 devtools::install_github("kapsner/mlr3learners.lightgbm")
 ```
 
-In order to use the `mlr3learners.lightgbm` R package, please make sure, the [reticulate](https://github.com/rstudio/reticulate) R package is configured properly on your system (reticulate version >= 1.13.0.9006) and is pointing to a python environment. If not, you can e.g. install `miniconda`:
+In order to use the `mlr3learners.lightgbm` R package, please make sure, the [reticulate](https://github.com/rstudio/reticulate) R package is configured properly on your system (reticulate version >= 1.14) and is pointing to a python environment. If not, you can e.g. install `miniconda`:
 
 ```r
 reticulate::install_miniconda(

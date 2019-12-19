@@ -19,8 +19,6 @@ LearnerClassifLightGBM <- R6::R6Class(
 
   public = list(
 
-    lgb_params = NULL,
-
     id_col = NULL,
 
     validation_split = NULL,
@@ -32,7 +30,6 @@ LearnerClassifLightGBM <- R6::R6Class(
     initialize = function() {
 
       private$lgb_learner <- lightgbm.py::LightgbmTrain$new()
-      self$lgb_params <- private$lgb_learner$param_set
 
       self$validation_split <- 1
       self$num_boost_round <- 5000
@@ -45,7 +42,7 @@ LearnerClassifLightGBM <- R6::R6Class(
         packages = "lightgbm.py",
         feature_types = c("numeric", "factor", "ordered"),
         predict_types = "prob",
-        param_set = self$lgb_params,
+        param_set = private$lgb_learner$param_set,
         properties = c("twoclass",
                        "multiclass",
                        "missings",
@@ -55,12 +52,37 @@ LearnerClassifLightGBM <- R6::R6Class(
 
     train_internal = function(task) {
 
-      stopifnot(
-        self$param_set$values[["objective"]] %in%
-          c("binary", "multiclass", "multiclassova", "lambdarank")
-      )
-
       data <- task$data()
+
+      n <- nlevels(factor(data[, get(task$target_names)]))
+
+      if (is.null(private$lgb_learner$param_set$values[["objective"]])) {
+        # if not provided, set default objective depending on the
+        # number of levels
+        message("No objective provided...")
+        if (n > 2) {
+          private$lgb_learner$param_set$values <- c(
+            self$param_set$values,
+            list("objective" = "multiclass")
+          )
+          message("Setting objective to 'multiclass'")
+        } else if (n == 2) {
+          private$lgb_learner$param_set$values <- c(
+            self$param_set$values,
+            list("objective" = "binary")
+          )
+          message("Setting objective to 'binary'")
+        } else {
+          stop(paste0("Please provide a target with a least ",
+                      "2 levels for classification tasks"))
+        }
+
+      } else {
+        stopifnot(
+          private$lgb_learner$param_set$values[["objective"]] %in%
+            c("binary", "multiclass", "multiclassova", "lambdarank")
+        )
+      }
 
       private$lgb_learner$init_data(
         dataset = data,
@@ -73,6 +95,7 @@ LearnerClassifLightGBM <- R6::R6Class(
         split_seed = self$split_seed
       )
 
+      # switch of python modules parallelization and use the one of mlr3
       private$lgb_learner$param_set$values <- c(
         self$param_set$values,
         list("num_threads" = 1L)

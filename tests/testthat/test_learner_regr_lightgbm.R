@@ -8,7 +8,6 @@ test_that(
 
     learner <- LearnerRegrLightGBM$new()
     expect_learner(learner)
-    learner$param_set$values[["objective"]] <- "regression"
     result <- run_autotest(learner, predict_types = "response")
     skip("Type error in score()")
     expect_true(result, info = result$error)

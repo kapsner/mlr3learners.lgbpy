@@ -15,9 +15,6 @@ my_desc$set_authors(c(
          comment = c(ORCID = "0000-0003-1866-860X"))
 ))
 
-# Set copyright
-my_desc$set("Copyright", "Lorenz A. Kapsner")
-
 # Remove some author fields
 my_desc$del("Maintainer")
 
@@ -67,7 +64,7 @@ usethis::use_package("R", min_version = "2.10", type = "Depends")
 
 # Imports
 usethis::use_package("data.table", type="Imports")
-usethis::use_package("reticulate", type = "Imports")
+usethis::use_package("reticulate", type = "Imports", min_version = "1.14")
 usethis::use_package("R6", type = "Imports")
 usethis::use_package("paradox", type = "Imports")
 usethis::use_package("mlr3misc", type = "Imports")

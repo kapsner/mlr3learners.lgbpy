@@ -16,8 +16,6 @@ LearnerRegrLightGBM <- R6::R6Class(
 
   public = list(
 
-    lgb_params = NULL,
-
     id_col = NULL,
 
     validation_split = NULL,
@@ -29,7 +27,6 @@ LearnerRegrLightGBM <- R6::R6Class(
     initialize = function() {
 
       private$lgb_learner <- lightgbm.py::LightgbmTrain$new()
-      self$lgb_params <- private$lgb_learner$param_set
 
       self$validation_split <- 1
       self$num_boost_round <- 5000
@@ -42,7 +39,7 @@ LearnerRegrLightGBM <- R6::R6Class(
         packages = "lightgbm.py",
         feature_types = c("numeric", "factor", "ordered"),
         predict_types = "response",
-        param_set = self$lgb_params,
+        param_set = private$lgb_learner$param_set,
         properties = c("missings",
                        "importance")
       )
@@ -50,11 +47,21 @@ LearnerRegrLightGBM <- R6::R6Class(
 
     train_internal = function(task) {
 
-      stopifnot(
-        !(self$param_set$values[["objective"]] %in%
-            c("binary", "multiclass",
-              "multiclassova", "lambdarank"))
-      )
+      if (is.null(private$lgb_learner$param_set$values[["objective"]])) {
+        # if not provided, set default objective to "regression"
+        # this is needed for the learner's init_data function
+        private$lgb_learner$param_set$values <- c(
+          self$param_set$values,
+          list("objective" = "regression")
+        )
+        message("No objective provided... Setting objective to 'regression'")
+      } else {
+        stopifnot(
+          !(private$lgb_learner$param_set$values[["objective"]] %in%
+              c("binary", "multiclass",
+                "multiclassova", "lambdarank"))
+        )
+      }
 
       data <- task$data()
 
@@ -69,6 +76,7 @@ LearnerRegrLightGBM <- R6::R6Class(
         split_seed = self$split_seed
       )
 
+      # switch of python modules parallelization and use the one of mlr3
       private$lgb_learner$param_set$values <- c(
         self$param_set$values,
         list("num_threads" = 1L)

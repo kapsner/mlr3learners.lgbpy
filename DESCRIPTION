@@ -13,14 +13,13 @@ LazyData: true
 URL: https://github.com/kapsner/mlr3learners.lightgbm
 BugReports: https://github.com/kapsner/mlr3learners.lightgbm/issues
 Encoding: UTF-8
-Copyright: Lorenz A. Kapsner
-Date: 2019-12-18
+Date: 2019-12-19
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
 Imports: 
     data.table,
-    reticulate,
+    reticulate (>= 1.14),
     R6,
     paradox,
     mlr3misc,
