@@ -1,6 +1,6 @@
 #' @title Regression LightGBM Learner
 #'
-#' @aliases mlr_learners_regr.lightgbm
+#' @aliases mlr_learners_regr.lgbpy
 #' @format [R6::R6Class] inheriting from [mlr3::LearnerRegr].
 #'
 #' @importFrom mlr3 mlr_learners LearnerRegr
@@ -35,7 +35,7 @@ LearnerRegrLightGBM <- R6::R6Class(
       super$initialize(
         # see the mlr3book for a description:
         # https://mlr3book.mlr-org.com/extending-mlr3.html
-        id = "regr.lightgbm",
+        id = "regr.lgbpy",
         packages = "lightgbm.py",
         feature_types = c("numeric", "factor", "ordered"),
         predict_types = "response",

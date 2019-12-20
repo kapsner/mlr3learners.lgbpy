@@ -69,10 +69,10 @@ task <- TaskClassif$new(
 
 # Instantiate the lightgbm learner 
 
-Initially, the `classif.lightgbm` class needs to be instantiated: 
+Initially, the `classif.lgbpy` class needs to be instantiated: 
 
 ```{r}
-learner <- mlr3::lrn("classif.lightgbm")
+learner <- mlr3::lrn("classif.lgbpy")
 ```
 
 # Configure the learner 

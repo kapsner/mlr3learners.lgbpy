@@ -87,10 +87,10 @@ mlr3viz::autoplot(task)
 
 # Instantiate the lightgbm learner 
 
-Initially, the `classif.lightgbm` class needs to be instantiated: 
+Initially, the `regr.lgbpy` class needs to be instantiated: 
 
 ```{r}
-learner <- mlr3::lrn("regr.lightgbm")
+learner <- mlr3::lrn("regr.lgbpy")
 ```
 
 # Configure the learner 

@@ -10,6 +10,6 @@
   x <- utils::getFromNamespace("mlr_learners", ns = "mlr3")
 
   # add the learner to the dictionary
-  x$add("classif.lightgbm", LearnerClassifLightGBM)
-  x$add("regr.lightgbm", LearnerRegrLightGBM)
+  x$add("classif.lgbpy", LearnerClassifLightGBM)
+  x$add("regr.lgbpy", LearnerRegrLightGBM)
 } # nocov end

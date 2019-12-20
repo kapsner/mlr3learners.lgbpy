@@ -1,6 +1,6 @@
 #' @title Classification LightGBM Learner
 #'
-#' @aliases mlr_learners_classif.lightgbm
+#' @aliases mlr_learners_classif.lgbpy
 #' @format [R6::R6Class] inheriting from [mlr3::LearnerClassif].
 #'
 #' @import data.table
@@ -38,7 +38,7 @@ LearnerClassifLightGBM <- R6::R6Class(
       super$initialize(
         # see the mlr3book for a description:
         # https://mlr3book.mlr-org.com/extending-mlr3.html
-        id = "classif.lightgbm",
+        id = "classif.lgbpy",
         packages = "lightgbm.py",
         feature_types = c("numeric", "factor", "ordered"),
         predict_types = "prob",
