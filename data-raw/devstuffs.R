@@ -1,4 +1,4 @@
-packagename <- "mlr3learners.lightgbm"
+packagename <- "mlr3learners.lgbpy"
 
 # remove existing description object
 unlink("DESCRIPTION")
@@ -22,17 +22,19 @@ my_desc$del("Maintainer")
 my_desc$set_version("0.0.1.9000")
 
 # The title of your package
-my_desc$set(Title = "mlr3: LightGBM learner")
+my_desc$set(Title = "mlr3: LightGBM learner using its python module")
 
 # The description of your package
-my_desc$set(Description = "LightGBM functionality for mlr3 framework.")
+my_desc$set(Description = paste0("Brining the LightGBM functionality ",
+                                 "to the mlr3 framework using the lightgbm ",
+                                 "python module and reticulate."))
 
 # The date when description file has been created
 my_desc$set("Date" = as.character(Sys.Date()))
 
 # The urls
-my_desc$set("URL", "https://github.com/kapsner/mlr3learners.lightgbm")
-my_desc$set("BugReports", "https://github.com/kapsner/mlr3learners.lightgbm/issues")
+my_desc$set("URL", "https://github.com/kapsner/mlr3learners.lgbpy")
+my_desc$set("BugReports", "https://github.com/kapsner/mlr3learners.lgbpy/issues")
 
 # Vignette Builder
 my_desc$set("VignetteBuilder" = "knitr")
@@ -81,6 +83,8 @@ usethis::use_package("qpdf", type = "Suggests")
 usethis::use_package("knitr", type = "Suggests")
 usethis::use_package("mlbench", type = "Suggests")
 usethis::use_package("mlr3viz", type = "Suggests")
+usethis::use_package("future", type = "Suggests")
+usethis::use_package("mlr3tuning", type = "Suggests")
 
 
 # Remotes (development packages)
@@ -125,3 +129,4 @@ usethis::use_git_ignore("/.RData")
 
 # lint package
 #lintr::lint_package()
+

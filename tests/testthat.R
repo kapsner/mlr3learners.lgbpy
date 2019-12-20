@@ -1,4 +1,4 @@
 library(testthat)
-library(mlr3learners.lightgbm)
+library(mlr3learners.lgbpy)
 
-test_check("mlr3learners.lightgbm")
+test_check("mlr3learners.lgbpy")

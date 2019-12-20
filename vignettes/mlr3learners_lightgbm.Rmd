@@ -1,5 +1,5 @@
 ---
-title: "mlr3learners.lightgbm - Multiclass Example"
+title: "mlr3learners.lgbpy - Multiclass Example"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{mlr3learners_lightgbm}
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(mlr3learners.lightgbm)
+library(mlr3learners.lgbpy)
 library(mlr3)
 library(paradox)
 library(mlbench)
