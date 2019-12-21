@@ -95,7 +95,13 @@ learner <- mlr3::lrn("regr.lgbpy")
 
 # Configure the learner 
 
-In the next step, some parameters need to be set. `validation_split` can be set in order to further split the training data and evaluate the model performance during training against the validation set. The allowed value range is 0 < validation_split <= 1. This parameter can also be set to "1", taking the whole training data for validation during the model training. For reproducibility, please use the `split_seed` argument. 
+In the next step, some parameters need to be set. `validation_split` can be set in order to further split the training data and evaluate the model performance during training against the validation set. The allowed value range is 0 < validation_split <= 1. This parameter can also be set to "1", taking the whole training data for validation during the model training. For reproducibility, please use the `split_seed` argument.  
+Almost all possible parameters have been implemented here. You can inspect them using the following command: 
+
+```{r eval=FALSE}
+learner$param_set
+```
+
 Also the parameters `num_boost_round` and `early_stopping_rounds` can be set here. Please refer to the [LightGBM manual](https://lightgbm.readthedocs.io) for further details these parameters.
 
 ```{r}
@@ -105,14 +111,6 @@ learner$validation_split <- 0.7
 learner$early_stopping_rounds <- 100
 learner$num_boost_round <- 5000
 ```
-
-Next, the learner parameters need to be set. At least, the `objective` parameter needs to be provided! Almost all possible parameters have been implemented here. You can inspect them using the following command: 
-
-```{r eval=FALSE}
-learner$param_set
-```
-
-Please refer to the [LightGBM manual](https://lightgbm.readthedocs.io) for further details on these parameters. 
 
 ```{r}
 learner$param_set$values <- list(
