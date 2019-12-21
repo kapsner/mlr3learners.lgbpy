@@ -16,14 +16,33 @@ LearnerRegrLightGBM <- R6::R6Class(
 
   public = list(
 
+    #' @field  id_col (optional) A character string. The name of the ID column
+    #'   (default: NULL).
     id_col = NULL,
 
+    #' @field validation_split A numeric. Ratio to further split the training
+    #'   data for validation (default: 1). The allowed value range is
+    #'   0 < validation_split <= 1. This parameter can also be set to
+    #'   '1', taking the whole training data for validation during the model
+    #'   training.
     validation_split = NULL,
+
+    #' @field split_seed A integer (default: NULL). Please use this argument in
+    #'   order to generate reproducible results.
     split_seed = NULL,
 
+    #' @field num_boost_round A integer. The number of boosting iterations
+    #'   (default: 100).
     num_boost_round = NULL,
+
+
+    #' @field early_stopping_rounds A integer. It will stop training if one
+    #'   metric of one validation data doesn’t improve in last
+    #'   `early_stopping_round` rounds. '0' means disable (default: 0).
     early_stopping_rounds = NULL,
 
+    #' @description The initialize function.
+    #'
     initialize = function() {
 
       private$lgb_learner <- lightgbm.py::LightgbmTrain$new()
@@ -45,6 +64,10 @@ LearnerRegrLightGBM <- R6::R6Class(
       )
     },
 
+    #' @description The train_internal function.
+    #'
+    #' @param task An mlr3 task.
+    #'
     train_internal = function(task) {
 
       if (is.null(private$lgb_learner$param_set$values[["objective"]])) {
@@ -89,6 +112,10 @@ LearnerRegrLightGBM <- R6::R6Class(
       ) # use the mlr3misc::invoke function (it's similar to do.call())
     },
 
+    #' @description The predict_internal function.
+    #'
+    #' @param task An mlr3 task.
+    #'
     predict_internal = function(task) {
       newdata <- task$data(cols = task$feature_names) # get newdata
 
@@ -107,8 +134,29 @@ LearnerRegrLightGBM <- R6::R6Class(
 
     # Add method for importance, if learner supports that.
     # It must return a sorted (decreasing) numerical, named vector.
+    #' @description The importance function
+    #'
+    #' @details A named vector with the learner's variable importances.
+    #'
     importance = function() {
-      if (is.null(private$lgb_learner$model)) {
+      if (is.null(self$model)) {
+        stop("No model stored")
+      }
+
+      imp <- private$lgb_learner$importance()$raw_values
+      ret <- sapply(imp$Feature, function(x) {
+        return(imp[which(imp$Feature == x), ]$Value)
+      }, USE.NAMES = TRUE, simplify = TRUE)
+
+      return(unlist(ret))
+    },
+    #' @description The importance2 function
+    #'
+    #' @details Returns a list with the learner's variable importance values
+    #'   and an importance plot.
+    #'
+    importance2 = function() {
+      if (is.null(self$model)) {
         stop("No model stored")
       }
       return(private$lgb_learner$importance())

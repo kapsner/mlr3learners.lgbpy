@@ -101,6 +101,7 @@ In the next step, some parameters need to be set. `validation_split` can be set 
 Also the parameters `num_boost_round` and `early_stopping_rounds` can be set here. Please refer to the [LightGBM manual](https://lightgbm.readthedocs.io) for further details these parameters.
 
 ```{r}
+learner$id_col <- id_col
 learner$split_seed <- 2
 learner$validation_split <- 0.7
 learner$early_stopping_rounds <- 100
@@ -163,7 +164,11 @@ The variable importance plot can be calculated by using the learner's `importanc
 
 ```{r}
 importance <- learner$importance()
-importance$raw_values
+importance
+```
+```{r}
+importance2 <- learner$importance2()
+importance2$raw_values
 ```
 ```{r results='hide', message=FALSE, warning=FALSE, error=FALSE}
 filename <- "./png/mlr3learners.lgb_imp_multiclass.png"
@@ -173,7 +178,7 @@ grDevices::png(
     height = 1000,
     width = 1500
   )
-print(importance$plot)
+print(importance2$plot)
 grDevices::dev.off()
 ```
 ```{r out.width='80%'}

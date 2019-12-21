@@ -78,6 +78,7 @@ learner <- mlr3::lrn("classif.lgbpy")
 # Configure the learner 
 
 ```{r}
+learner$id_col <- id_col
 learner$split_seed <- 2
 learner$validation_split <- 0.7
 learner$early_stopping_rounds <- 100
@@ -173,17 +174,21 @@ predictions$score(mlr3::msr("classif.auc"))
 
 ```{r}
 importance <- learner$importance()
-importance$raw_values
+importance
+```
+```{r}
+importance2 <- learner$importance2()
+importance2$raw_values
 ```
 ```{r results='hide', message=FALSE, warning=FALSE, error=FALSE}
-filename <- "./png/mlr3learners.lgb_imp_binary.png"
+filename <- "./png/mlr3learners.lgb_imp_tuning.png"
 grDevices::png(
     filename = filename,
     res = 150,
     height = 1000,
     width = 1500
   )
-print(importance$plot)
+print(importance2$plot)
 grDevices::dev.off()
 ```
 ```{r out.width='80%'}

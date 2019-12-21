@@ -20,7 +20,7 @@ test_that(
       "R" = list(
         "LearnerClassifLightGBM.R" = "snake_case",
         "LearnerRegrLightGBM.R" = "snake_case",
-        "utils.R" = "snake_case"
+        "zzz.R" = "snake_case"
       ),
       "tests/testthat" = list(
         "helper.R" = NULL,
