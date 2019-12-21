@@ -34,9 +34,10 @@ Suggests:
     qpdf,
     knitr,
     mlbench,
-    mlr3viz,
+    mlr3viz (>= 0.1.0.9000),
     future,
     mlr3tuning
 Remotes: 
-    kapsner/lightgbm.py@master
+    kapsner/lightgbm.py@master,
+    mlr-org/mlr3viz
 RoxygenNote: 7.0.1
