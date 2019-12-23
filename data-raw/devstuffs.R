@@ -81,8 +81,6 @@ usethis::use_package("checkmate", type = "Suggests")
 usethis::use_package("rmarkdown", type = "Suggests")
 usethis::use_package("qpdf", type = "Suggests")
 usethis::use_package("knitr", type = "Suggests")
-usethis::use_package("mlbench", type = "Suggests")
-usethis::use_dev_package("mlr3viz", type = "Suggests")
 usethis::use_package("future", type = "Suggests")
 usethis::use_package("mlr3tuning", type = "Suggests")
 
@@ -94,8 +92,7 @@ devtools::install_github(repo = "kapsner/lightgbm.py", ref = "master")
 usethis::use_dev_package("lightgbm.py", type = "Imports")
 # further info on possible representations, e.g. urls if not gitub:
 # https://cran.r-project.org/web/packages/devtools/vignettes/dependencies.html
-desc::desc_set_remotes(c("kapsner/lightgbm.py@master",
-                         "mlr-org/mlr3viz"), file = usethis::proj_get())
+desc::desc_set_remotes(c("kapsner/lightgbm.py@master"), file = usethis::proj_get())
 
 
 # buildignore

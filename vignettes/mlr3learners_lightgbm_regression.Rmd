@@ -17,13 +17,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-dir.create("./png")
 ```
 
 ```{r setup}
 library(mlr3)
 library(mlr3learners.lgbpy)
-library(mlbench)
 library(lightgbm.py)
 ```
 
@@ -48,41 +46,27 @@ Use the function `install_py_lightgbm` in order to install the lightgbm python m
 lightgbm.py::install_py_lightgbm()
 ```
 
-# Load the dataset
-
-The data must be provided as a `data.table` object. To simplify the subsequent steps, the target column name and the ID column name are assigned to the variables `target_col` and `id_col`, respectively. 
+# Load the mlr3 task
 
 ```{r}
-data("BostonHousing")
-dataset <- data.table::as.data.table(BostonHousing)
+task <- mlr3::tsk("boston_housing")
 target_col <- "medv"
 id_col <- NULL
 ```
 
-To evaluate the model performance, the dataset is split into a training set and a test set with `sklearn_train_test_split`. This function is a wrapper around python sklearn's [sklearn.model_selection.train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) method and ensures a stratified sampling (stratified sampling does only work with categorical variables).
+To evaluate the model performance, the dataset is split into a training set and a test set with `sklearn_train_test_split`. This function is a wrapper around python sklearn's [sklearn.model_selection.train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) method and ensures a stratified sampling for categorical target variables. 
 
 ```{r}
 split <- lightgbm.py::sklearn_train_test_split(
-  dataset,
+  task$data(),
   target_col,
   split = 0.7,
   seed = 17,
   return_only_index = TRUE,
   stratify = FALSE
 )
-```
-
-# Define an mlr3 task 
-
-```{r}
-task <- TaskRegr$new(
-  id = "BostonHousing",
-  target = target_col,
-  backend = dataset
-)
-```
-```{r eval=FALSE}
-mlr3viz::autoplot(task)
+table(task$data()[split$train_index, task$target_names, with = F])
+table(task$data()[split$test_index, task$target_names, with = F])
 ```
 
 # Instantiate the lightgbm learner 
@@ -159,18 +143,4 @@ importance
 ```{r}
 importance2 <- learner$importance2()
 importance2$raw_values
-```
-```{r results='hide', message=FALSE, warning=FALSE, error=FALSE}
-filename <- "./png/mlr3learners.lgb_imp_regression.png"
-grDevices::png(
-    filename = filename,
-    res = 150,
-    height = 1000,
-    width = 1500
-  )
-print(importance2$plot)
-grDevices::dev.off()
-```
-```{r out.width='80%'}
-knitr::include_graphics(filename)
 ```

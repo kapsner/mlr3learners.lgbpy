@@ -17,13 +17,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-dir.create("./png")
 ```
 
 ```{r setup}
 library(mlr3)
 library(mlr3learners.lgbpy)
-library(mlbench)
 library(lightgbm.py)
 ```
 
@@ -48,13 +46,10 @@ Use the function `install_py_lightgbm` in order to install the lightgbm python m
 lightgbm.py::install_py_lightgbm()
 ```
 
-# Load the dataset
-
-The data must be provided as a `data.table` object. To simplify the subsequent steps, the target column name and the ID column name are assigned to the variables `target_col` and `id_col`, respectively. 
+# Load the mlr3 task
 
 ```{r}
-data("PimaIndiansDiabetes2")
-dataset <- data.table::as.data.table(PimaIndiansDiabetes2)
+task <- mlr3::tsk("pima")
 target_col <- "diabetes"
 id_col <- NULL
 ```
@@ -63,28 +58,15 @@ To evaluate the model performance, the dataset is split into a training set and 
 
 ```{r}
 split <- lightgbm.py::sklearn_train_test_split(
-  dataset,
+  task$data(),
   target_col,
   split = 0.7,
   seed = 17,
   return_only_index = TRUE,
   stratify = TRUE
 )
-table(dataset[split$train_index, target_col, with = F])
-table(dataset[split$test_index, target_col, with = F])
-```
-
-# Define an mlr3 task 
-
-```{r}
-task <- TaskClassif$new(
-  id = "PimaIndiansDiabetes2",
-  target = target_col,
-  backend = dataset
-)
-```
-```{r eval=FALSE}
-mlr3viz::autoplot(task)
+table(task$data()[split$train_index, task$target_names, with = F])
+table(task$data()[split$test_index, task$target_names, with = F])
 ```
 
 # Instantiate the lightgbm learner 
@@ -117,7 +99,8 @@ learner$num_boost_round <- 5000
 ```{r}
 learner$param_set$values <- list(
   "learning_rate" = 0.01,
-  "seed" = 17L
+  "seed" = 17L,
+  "metric" = "auc"
 )
 ```
 
@@ -167,18 +150,4 @@ importance
 ```{r}
 importance2 <- learner$importance2()
 importance2$raw_values
-```
-```{r results='hide', message=FALSE, warning=FALSE, error=FALSE}
-filename <- "./png/mlr3learners.lgb_imp_binary.png"
-grDevices::png(
-    filename = filename,
-    res = 150,
-    height = 1000,
-    width = 1500
-  )
-print(importance2$plot)
-grDevices::dev.off()
-```
-```{r out.width='80%'}
-knitr::include_graphics(filename)
 ```

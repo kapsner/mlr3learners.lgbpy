@@ -56,7 +56,10 @@ LearnerRegrLightGBM <- R6::R6Class(
         # https://mlr3book.mlr-org.com/extending-mlr3.html
         id = "regr.lgbpy",
         packages = "lightgbm.py",
-        feature_types = c("numeric", "factor", "ordered"),
+        feature_types = c(
+          "numeric", "factor", "ordered",
+          "integer", "character"
+        ),
         predict_types = "response",
         param_set = private$lgb_learner$param_set,
         properties = c("missings",
