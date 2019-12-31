@@ -65,8 +65,6 @@ learner <- mlr3::lrn("classif.lgbpy")
 
 ```{r}
 learner$id_col <- id_col
-learner$split_seed <- 2
-learner$validation_split <- 0.7
 learner$early_stopping_rounds <- 100
 learner$num_boost_round <- 5000
 ```
@@ -109,11 +107,9 @@ instance
 ```
 
 ```{r}
-future::plan("multicore")
 tuner <- mlr3tuning::tnr("grid_search", resolution = 5)
 set.seed(17)
 result <- tuner$tune(instance)
-future::plan("sequential")
 ```
 
 ```{r}

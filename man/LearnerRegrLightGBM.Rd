@@ -19,21 +19,20 @@ Regression LightGBM Learner
 \item{\code{id_col}}{(optional) A character string. The name of the ID column
 (default: NULL).}
 
-\item{\code{validation_split}}{A numeric. Ratio to further split the training
-data for validation (default: 1). The allowed value range is
-0 < validation_split <= 1. This parameter can also be set to
-'1', taking the whole training data for validation during the model
-training.}
+\item{\code{lgb_learner}}{The lightgbm.py learner instance}
 
-\item{\code{split_seed}}{A integer (default: NULL). Please use this argument in
-order to generate reproducible results.}
+\item{\code{num_boost_round}}{Number of training rounds.}
 
-\item{\code{num_boost_round}}{A integer. The number of boosting iterations
-(default: 100).}
+\item{\code{early_stopping_rounds}}{A integer. Activates early stopping.
+Requires at least one validation data and one metric. If there's
+more than one, will check all of them except the training data.
+Returns the model with (best_iter + early_stopping_rounds).
+If early stopping occurs, the model will have 'best_iter' field.}
 
-\item{\code{early_stopping_rounds}}{A integer. It will stop training if one
-metric of one validation data doesn’t improve in last
-`early_stopping_round` rounds. '0' means disable (default: 0).}
+\item{\code{categorical_feature}}{A list of str or int. Type int represents
+index, type str represents feature names.}
+
+\item{\code{cv_model}}{The cross validation model.}
 }
 \if{html}{\out{</div>}}
 }
@@ -42,9 +41,9 @@ metric of one validation data doesn’t improve in last
 \itemize{
 \item \href{#method-new}{\code{LearnerRegrLightGBM$new()}}
 \item \href{#method-train_internal}{\code{LearnerRegrLightGBM$train_internal()}}
+\item \href{#method-train_cv}{\code{LearnerRegrLightGBM$train_cv()}}
 \item \href{#method-predict_internal}{\code{LearnerRegrLightGBM$predict_internal()}}
 \item \href{#method-importance}{\code{LearnerRegrLightGBM$importance()}}
-\item \href{#method-importance2}{\code{LearnerRegrLightGBM$importance2()}}
 \item \href{#method-clone}{\code{LearnerRegrLightGBM$clone()}}
 }
 }
@@ -87,6 +86,25 @@ The train_internal function.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-train_cv"></a>}}
+\subsection{Method \code{train_cv()}}{
+The train_cv function
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerRegrLightGBM$train_cv(task, row_ids)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{An mlr3 task}
+
+\item{\code{row_ids}}{An integer vector with the row IDs for the validation
+data.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-predict_internal"></a>}}
 \subsection{Method \code{predict_internal()}}{
 The predict_internal function.
@@ -112,20 +130,6 @@ The importance function
 
 \subsection{Details}{
 A named vector with the learner's variable importances.
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-importance2"></a>}}
-\subsection{Method \code{importance2()}}{
-The importance2 function
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerRegrLightGBM$importance2()}\if{html}{\out{</div>}}
-}
-
-\subsection{Details}{
-Returns a list with the learner's variable importance values
-  and an importance plot.
 }
 
 }

@@ -14,7 +14,47 @@ LearnerClassifLightGBM <- R6::R6Class(
   inherit = LearnerClassif,
 
   private = list(
-    lgb_learner = NULL
+
+    # save importance values
+    imp = NULL,
+
+    # some pre training checks for this learner
+    pre_train_checks = function(task) {
+      n <- nlevels(factor(task$data()[, get(task$target_names)]))
+
+      if (is.null(self$param_set$values[["objective"]])) {
+        # if not provided, set default objective depending on the
+        # number of levels
+        message("No objective provided...")
+        if (n > 2) {
+          self$param_set$values <- mlr3misc::insert_named(
+            self$param_set$values,
+            list("objective" = "multiclass")
+          )
+          message("Setting objective to 'multiclass'")
+        } else if (n == 2) {
+          self$param_set$values <- mlr3misc::insert_named(
+            self$param_set$values,
+            list("objective" = "binary")
+          )
+          message("Setting objective to 'binary'")
+        } else {
+          stop(paste0("Please provide a target with a least ",
+                      "2 levels for classification tasks"))
+        }
+
+      } else {
+        stopifnot(
+          self$param_set$values[["objective"]] %in%
+            c("binary", "multiclass", "multiclassova", "lambdarank")
+        )
+      }
+
+      self$lgb_learner$num_boost_round <- self$num_boost_round
+      self$lgb_learner$early_stopping_rounds <- self$early_stopping_rounds
+      self$lgb_learner$categorical_feature <- self$categorical_feature
+      self$lgb_learner$param_set <- self$param_set
+    }
   ),
 
   public = list(
@@ -23,35 +63,37 @@ LearnerClassifLightGBM <- R6::R6Class(
     #'   (default: NULL).
     id_col = NULL,
 
-    #' @field validation_split A numeric. Ratio to further split the training
-    #'   data for validation (default: 1). The allowed value range is
-    #'   0 < validation_split <= 1. This parameter can also be set to
-    #'   '1', taking the whole training data for validation during the model
-    #'   training.
-    validation_split = NULL,
+    #' @field lgb_learner The lightgbm.py learner instance
+    lgb_learner = NULL,
 
-    #' @field split_seed A integer (default: NULL). Please use this argument in
-    #'   order to generate reproducible results.
-    split_seed = NULL,
-
-    #' @field num_boost_round A integer. The number of boosting iterations
-    #'   (default: 100).
+    #' @field num_boost_round Number of training rounds.
     num_boost_round = NULL,
 
-
-    #' @field early_stopping_rounds A integer. It will stop training if one
-    #'   metric of one validation data doesn’t improve in last
-    #'   `early_stopping_round` rounds. '0' means disable (default: 0).
+    #' @field early_stopping_rounds A integer. Activates early stopping.
+    #'   Requires at least one validation data and one metric. If there's
+    #'   more than one, will check all of them except the training data.
+    #'   Returns the model with (best_iter + early_stopping_rounds).
+    #'   If early stopping occurs, the model will have 'best_iter' field.
     early_stopping_rounds = NULL,
 
+    #' @field categorical_feature A list of str or int. Type int represents
+    #'   index, type str represents feature names.
+    categorical_feature = NULL,
+
+    #' @field cv_model The cross validation model.
+    cv_model = NULL,
+
+    # define methods
     #' @description The initialize function.
     #'
     initialize = function() {
 
-      private$lgb_learner <- lightgbm.py::LightgbmTrain$new()
+      self$lgb_learner <- lightgbm.py::LightGBM$new()
 
-      self$validation_split <- 1
-      self$num_boost_round <- 100
+      # set default parameters
+      self$num_boost_round <- self$lgb_learner$num_boost_round
+      self$early_stopping_rounds <- self$lgb_learner$early_stopping_rounds
+      self$categorical_feature <- self$lgb_learner$categorical_feature
 
       super$initialize(
         # see the mlr3book for a description:
@@ -63,7 +105,7 @@ LearnerClassifLightGBM <- R6::R6Class(
           "integer", "character"
         ),
         predict_types = "prob",
-        param_set = private$lgb_learner$param_set,
+        param_set = self$lgb_learner$param_set,
         properties = c("twoclass",
                        "multiclass",
                        "missings",
@@ -77,60 +119,64 @@ LearnerClassifLightGBM <- R6::R6Class(
     #'
     train_internal = function(task) {
 
+      private$pre_train_checks(task)
+
       data <- task$data()
 
-      n <- nlevels(factor(data[, get(task$target_names)]))
-
-      if (is.null(private$lgb_learner$param_set$values[["objective"]])) {
-        # if not provided, set default objective depending on the
-        # number of levels
-        message("No objective provided...")
-        if (n > 2) {
-          private$lgb_learner$param_set$values <- c(
-            self$param_set$values,
-            list("objective" = "multiclass")
-          )
-          message("Setting objective to 'multiclass'")
-        } else if (n == 2) {
-          private$lgb_learner$param_set$values <- c(
-            self$param_set$values,
-            list("objective" = "binary")
-          )
-          message("Setting objective to 'binary'")
-        } else {
-          stop(paste0("Please provide a target with a least ",
-                      "2 levels for classification tasks"))
-        }
-
-      } else {
-        stopifnot(
-          private$lgb_learner$param_set$values[["objective"]] %in%
-            c("binary", "multiclass", "multiclassova", "lambdarank")
-        )
-      }
-
-      private$lgb_learner$init_data(
+      self$lgb_learner$init_data(
         dataset = data,
         target_col = task$target_names,
         id_col = self$id_col
       )
 
-      private$lgb_learner$data_preprocessing(
-        validation_split = self$validation_split,
-        split_seed = self$split_seed
-      )
-
-      # switch of python modules parallelization and use the one of mlr3
-      private$lgb_learner$param_set$values <- c(
-        self$param_set$values,
-        list("num_threads" = 1L)
-      )
-
       mlr3misc::invoke(
-        .f = private$lgb_learner$train,
-        num_boost_round = self$num_boost_round,
-        early_stopping_rounds = self$early_stopping_rounds
+        .f = self$lgb_learner$train
       ) # use the mlr3misc::invoke function (it's similar to do.call())
+    },
+
+    #' @description The train_cv function
+    #'
+    #' @param task An mlr3 task
+    #' @param row_ids An integer vector with the row IDs for the validation
+    #'   data.
+    #'
+    train_cv = function(task, row_ids) {
+
+      if (is.null(self$model)) {
+
+        task <- mlr3::assert_task(as_task(task))
+        mlr3::assert_learnable(task, self)
+
+        row_ids <- mlr3::assert_row_ids(row_ids)
+
+        mlr3::assert_task(task)
+
+        # subset to test set w/o cloning
+        row_ids <- assert_row_ids(row_ids)
+        prev_use <- task$row_roles$use
+        on.exit({
+          task$row_roles$use <- prev_use
+        }, add = TRUE)
+        task$row_roles$use <- row_ids
+
+        private$pre_train_checks(task)
+
+        data <- task$data()
+
+        self$lgb_learner$init_data(
+          dataset = data,
+          target_col = task$target_names,
+          id_col = self$id_col
+        )
+
+        self$lgb_learner$train_cv()
+
+        self$cv_model <- self$lgb_learner$cv_model
+
+      } else {
+
+        stop("A final model has already been trained!")
+      }
     },
 
     #' @description The predict_internal function.
@@ -141,16 +187,41 @@ LearnerClassifLightGBM <- R6::R6Class(
       newdata <- task$data(cols = task$feature_names) # get newdata
 
       p <- mlr3misc::invoke(
-        .f = private$lgb_learner$predict,
-        newdata = newdata,
-        revalue = TRUE,
-        reshape = TRUE # this has only effect for binary classifications
-        # multiclass classifications will always return reshaped data
+        .f = self$lgb_learner$predict,
+        newdata = newdata
       )
+
+      if (self$param_set$values[["objective"]] %in%
+          c("multiclass", "multiclassova", "lambdarank")) {
+        colnames(p) <- as.character(unique(self$lgb_learner$label_names))
+
+        # process target variable
+        c_names <- colnames(p)
+        c_names <- plyr::revalue(
+          x = c_names,
+          replace = self$lgb_learner$trans_tar$value_mapping_dtrain
+        )
+        colnames(p) <- c_names
+
+      } else if (self$param_set$values[["objective"]] == "binary") {
+
+        # reshape binary prob to matrix
+        p <- cbind(
+          "0" = 1 - p,
+          "1" = p
+        )
+
+        c_names <- colnames(p)
+        c_names <- plyr::revalue(
+          x = c_names,
+          replace = self$lgb_learner$trans_tar$value_mapping_dtrain
+        )
+        colnames(p) <- c_names
+      }
 
       PredictionClassif$new(
         task = task,
-        prob = p$probabilities
+        prob = p
       )
 
     },
@@ -166,23 +237,12 @@ LearnerClassifLightGBM <- R6::R6Class(
         stop("No model stored")
       }
 
-      imp <- private$lgb_learner$importance()$raw_values
+      imp <- self$lgb_learner$importance()$raw_values
       ret <- sapply(imp$Feature, function(x) {
         return(imp[which(imp$Feature == x), ]$Value)
       }, USE.NAMES = TRUE, simplify = TRUE)
 
       return(unlist(ret))
-    },
-    #' @description The importance2 function
-    #'
-    #' @details Returns a list with the learner's variable importance values
-    #'   and an importance plot.
-    #'
-    importance2 = function() {
-      if (is.null(self$model)) {
-        stop("No model stored")
-      }
-      return(private$lgb_learner$importance())
     }
   )
 )

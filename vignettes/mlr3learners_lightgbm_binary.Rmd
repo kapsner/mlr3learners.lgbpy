@@ -90,8 +90,6 @@ Also the parameters `num_boost_round` and `early_stopping_rounds` can be set her
 
 ```{r}
 learner$id_col <- id_col
-learner$split_seed <- 2
-learner$validation_split <- 0.7
 learner$early_stopping_rounds <- 1000
 learner$num_boost_round <- 5000
 ```
@@ -113,13 +111,6 @@ learner$train(task, row_ids = split$train_index)
 ```
 
 # Evaluate the model performance 
-
-Basic metrics can be assesed directly from the python model: 
-
-```{r}
-learner$model$best_iteration
-learner$model$best_score$valid_0
-```
 
 The learner's `predict` function returns an object of mlr3's class `PredictionClassif`.
 
@@ -146,8 +137,4 @@ The variable importance plot can be calculated by using the learner's `importanc
 ```{r}
 importance <- learner$importance()
 importance
-```
-```{r}
-importance2 <- learner$importance2()
-importance2$raw_values
 ```
