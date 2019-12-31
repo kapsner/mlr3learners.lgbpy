@@ -40,8 +40,6 @@ library(mlr3)
 task = mlr3::tsk("iris")
 learner = mlr3::lrn("classif.lightgbm")
 
-learner$split_seed <- 2
-learner$validation_split <- 0.7
 learner$early_stopping_rounds <- 1000
 learner$num_boost_round <- 5000
 
@@ -62,4 +60,3 @@ For further information and examples, please view the `mlr3learners.lgbpy` packa
 - RStudio's reticulate R package: https://rstudio.github.io/reticulate/
 - Microsoft's LightGBM: https://lightgbm.readthedocs.io/en/latest/
 - lightgbm.py R package: https://github.com/kapsner/lightgbm.py
-
