@@ -50,6 +50,18 @@ LearnerClassifLightGBM <- R6::R6Class(
         )
       }
 
+      # if user has not specified categorical_feature, look in data for
+      # categorical features
+      if (is.null(self$categorical_feature) && self$autodetect_categorical) {
+        if (any(task$feature_types$type %in%
+                c("factor", "ordered", "character"))) {
+          cat_feat <- task$feature_types[
+            get("type") %in% c("factor", "ordered", "character"), get("id")
+            ]
+          self$categorical_feature <- cat_feat
+        }
+      }
+
       self$lgb_learner$num_boost_round <- self$num_boost_round
       self$lgb_learner$early_stopping_rounds <- self$early_stopping_rounds
       self$lgb_learner$categorical_feature <- self$categorical_feature
@@ -76,12 +88,15 @@ LearnerClassifLightGBM <- R6::R6Class(
     #'   If early stopping occurs, the model will have 'best_iter' field.
     early_stopping_rounds = NULL,
 
-    #' @field categorical_feature A list of str or int. Type int represents
+    #' @field categorical_feature A vector of str or int. Type int represents
     #'   index, type str represents feature names.
     categorical_feature = NULL,
 
     #' @field cv_model The cross validation model.
     cv_model = NULL,
+
+    #' @field autodetect_categorical Automatically detect categorical features.
+    autodetect_categorical = NULL,
 
     # define methods
     #' @description The initialize function.
@@ -95,13 +110,15 @@ LearnerClassifLightGBM <- R6::R6Class(
       self$early_stopping_rounds <- self$lgb_learner$early_stopping_rounds
       self$categorical_feature <- self$lgb_learner$categorical_feature
 
+      self$autodetect_categorical <- TRUE
+
       super$initialize(
         # see the mlr3book for a description:
         # https://mlr3book.mlr-org.com/extending-mlr3.html
         id = "classif.lgbpy",
         packages = "lightgbm.py",
         feature_types = c(
-          "numeric", "factor", "ordered",
+          "numeric", "factor",
           "integer", "character"
         ),
         predict_types = "prob",

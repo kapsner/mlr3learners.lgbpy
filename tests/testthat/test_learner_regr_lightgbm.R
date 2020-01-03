@@ -8,8 +8,10 @@ test_that(
 
     learner <- LearnerRegrLightGBM$new()
     expect_learner(learner)
-    result <- run_autotest(learner, predict_types = "response")
-    skip("Test not working")
+    learner$autodetect_categorical <- FALSE
+    learner$early_stopping_rounds <- 5
+    learner$num_boost_round <- 10
+    result <- run_autotest(learner)
     expect_true(result, info = result$error)
   }
 )
