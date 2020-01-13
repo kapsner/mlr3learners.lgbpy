@@ -58,7 +58,7 @@ learner$train(task, row_ids = 1:120)
 predictions <- learner$predict(task, row_ids = 121:150)
 ```
 
-For further information and examples, please view the `mlr3learners.lgbpy` package vignettes, the [mlr3book](https://mlr3book.mlr-org.com/index.html) and the vignettes of the `lightgbm.py` R package.  
+For further information and examples, please view the `mlr3learners.lgbpy` [package vignettes](vignettes/), the [mlr3book](https://mlr3book.mlr-org.com/index.html) and the vignettes of the `lightgbm.py` R package.  
 
 # GPU acceleration
 
