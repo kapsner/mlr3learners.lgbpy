@@ -1,6 +1,6 @@
 Package: mlr3learners.lgbpy
 Title: mlr3: LightGBM learner using its python module
-Version: 0.0.1.9003
+Version: 0.0.2
 Authors@R: 
     person(given = "Lorenz A.",
            family = "Kapsner",
@@ -13,7 +13,7 @@ LazyData: true
 URL: https://github.com/kapsner/mlr3learners.lgbpy
 BugReports: https://github.com/kapsner/mlr3learners.lgbpy/issues
 Encoding: UTF-8
-Date: 2020-01-03
+Date: 2020-01-16
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
@@ -35,6 +35,5 @@ Suggests:
     knitr,
     future,
     mlr3tuning
-Remotes: 
+Remotes:  
     kapsner/lightgbm.py@master
-RoxygenNote: 7.0.2
