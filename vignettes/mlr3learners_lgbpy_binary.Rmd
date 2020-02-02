@@ -1,11 +1,11 @@
 ---
-title: "mlr3learners.lgbpy: Regression Example"
+title: "mlr3learners.lgbpy: Binary Classification Example"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     keep_md: true
 vignette: >
-  %\VignetteIndexEntry{mlr3learners_lightgbm_regression}
+  %\VignetteIndexEntry{mlr3learners_lgbpy_binary}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -49,8 +49,8 @@ lightgbm.py::install_py_lightgbm()
 # Load the mlr3 task
 
 ```{r}
-task <- mlr3::tsk("boston_housing")
-target_col <- "medv"
+task <- mlr3::tsk("pima")
+target_col <- "diabetes"
 id_col <- NULL
 ```
 
@@ -63,16 +63,18 @@ split <- lightgbm.py::sklearn_train_test_split(
   split = 0.7,
   seed = 17,
   return_only_index = TRUE,
-  stratify = FALSE
+  stratify = TRUE
 )
+table(task$data()[split$train_index, task$target_names, with = F])
+table(task$data()[split$test_index, task$target_names, with = F])
 ```
 
 # Instantiate the lightgbm learner 
 
-Initially, the `regr.lgbpy` class needs to be instantiated: 
+Initially, the `classif.lgbpy` class needs to be instantiated: 
 
 ```{r}
-learner <- mlr3::lrn("regr.lgbpy")
+learner <- mlr3::lrn("classif.lgbpy")
 ```
 
 # Configure the learner 
@@ -88,15 +90,15 @@ Also the parameters `num_boost_round` and `early_stopping_rounds` can be set her
 
 ```{r}
 learner$id_col <- id_col
-learner$early_stopping_rounds <- 100
+learner$early_stopping_rounds <- 1000
 learner$num_boost_round <- 5000
 ```
 
 ```{r}
 learner$param_set$values <- list(
-  "learning_rate" = 0.1,
+  "learning_rate" = 0.01,
   "seed" = 17L,
-  "metric" = "rmse"
+  "metric" = "auc"
 )
 ```
 
@@ -110,17 +112,24 @@ learner$train(task, row_ids = split$train_index)
 
 # Evaluate the model performance 
 
-The learner's `predict` function returns an object of mlr3's class `PredictionRegr`.
+The learner's `predict` function returns an object of mlr3's class `PredictionClassif`.
 
 ```{r}
 predictions <- learner$predict(task, row_ids = split$test_index)
 head(predictions$response)
 ```
 
+It includes also a confusion  matrix:
+
+```{r}
+predictions$confusion
+```
+
 Further metrics can be calculated by using mlr3 measures:
 
 ```{r}
-predictions$score(mlr3::msr("regr.rmse"))
+predictions$score(mlr3::msr("classif.logloss"))
+predictions$score(mlr3::msr("classif.auc"))
 ```
 
 The variable importance plot can be calculated by using the learner's `importance` function:

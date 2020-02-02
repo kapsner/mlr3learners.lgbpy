@@ -105,7 +105,8 @@ LearnerRegrLightGBM <- R6::R6Class(
         ),
         predict_types = "response",
         param_set = self$lgb_learner$param_set,
-        properties = c("missings",
+        properties = c("weights",
+                       "missings",
                        "importance")
       )
     },
@@ -125,6 +126,12 @@ LearnerRegrLightGBM <- R6::R6Class(
         target_col = task$target_names,
         id_col = self$id_col
       )
+
+      if ("weights" %in% task$properties) {
+        self$lgb_learner$weights_train <- task$weights$weight
+      } else {
+        self$lgb_learner$weights_train <- NULL
+      }
 
       mlr3misc::invoke(
         .f = self$lgb_learner$train
@@ -165,6 +172,12 @@ LearnerRegrLightGBM <- R6::R6Class(
           target_col = task$target_names,
           id_col = self$id_col
         )
+
+        if ("weights" %in% task$properties) {
+          self$lgb_learner$weights_train <- task$weights$weight
+        } else {
+          self$lgb_learner$weights_train <- NULL
+        }
 
         self$lgb_learner$train_cv()
 

@@ -5,7 +5,7 @@ output:
   rmarkdown::html_vignette:
     keep_md: true
 vignette: >
-  %\VignetteIndexEntry{mlr3learners_lightgbm_multiclass}
+  %\VignetteIndexEntry{mlr3learners_lgbpy_multiclass}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

@@ -1,11 +1,11 @@
 ---
-title: "mlr3learners.lgbpy: Binary Classification Example"
+title: "mlr3learners.lgbpy: Mulitclass Classification GPU Example"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     keep_md: true
 vignette: >
-  %\VignetteIndexEntry{mlr3learners_lightgbm_binary}
+  %\VignetteIndexEntry{mlr3learners_lgbpy_multiclass_gpu}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -15,7 +15,8 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
@@ -40,17 +41,18 @@ reticulate::install_miniconda(
 reticulate::py_config()
 ```
 
-Use the function `install_py_lightgbm` in order to install the lightgbm python module. This function will first look, if the reticulate package is configured well and if the python module `lightgbm` is aready present. If not, it is automatically installed. 
+Before you can use the `mlr3learners.lgbpy` package with GPU acceleration, you need to compile the `lightgbm` python package according to [its documentation](https://github.com/microsoft/LightGBM/blob/master/python-package/README.md). 
+You can compile the GPU version on Linux/ in docker with the following commands: 
 
-```{r}
-lightgbm.py::install_py_lightgbm()
+```{bash}
+pip install lightgbm --install-option=--gpu
 ```
 
 # Load the mlr3 task
 
 ```{r}
-task <- mlr3::tsk("pima")
-target_col <- "diabetes"
+task <- mlr3::tsk("iris")
+target_col <- "Species"
 id_col <- NULL
 ```
 
@@ -90,15 +92,19 @@ Also the parameters `num_boost_round` and `early_stopping_rounds` can be set her
 
 ```{r}
 learner$id_col <- id_col
-learner$early_stopping_rounds <- 1000
+learner$early_stopping_rounds <- 100
 learner$num_boost_round <- 5000
 ```
+
+In order to use the GPU acceleration, the parameter `device_type = "gpu"` (default: "cpu") needs to be set. According to the [LightGBM parameter manual](https://lightgbm.readthedocs.io/en/latest/Parameters.html), 'it is recommended to use the smaller `max_bin` (e.g. 63) to get the better speed up'. 
 
 ```{r}
 learner$param_set$values <- list(
   "learning_rate" = 0.01,
   "seed" = 17L,
-  "metric" = "auc"
+  "metric" = "multi_logloss",
+  "device_type" = "gpu",
+  "max_bin" = 63L
 )
 ```
 
@@ -129,7 +135,6 @@ Further metrics can be calculated by using mlr3 measures:
 
 ```{r}
 predictions$score(mlr3::msr("classif.logloss"))
-predictions$score(mlr3::msr("classif.auc"))
 ```
 
 The variable importance plot can be calculated by using the learner's `importance` function:
