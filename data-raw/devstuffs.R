@@ -25,7 +25,7 @@ my_desc$set_version("0.0.2.9001")
 my_desc$set(Title = "mlr3: LightGBM learner using its python module")
 
 # The description of your package
-my_desc$set(Description = paste0("Brining the LightGBM functionality ",
+my_desc$set(Description = paste0("Brings the LightGBM functionality ",
                                  "to the mlr3 framework using the lightgbm ",
                                  "python module and reticulate."))
 
