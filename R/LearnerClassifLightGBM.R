@@ -39,7 +39,9 @@ LearnerClassifLightGBM <- R6::R6Class(
           )
           message("Setting objective to 'binary'")
           self$lgb_learner$positive <- task$positive
+          self$lgb_learner$negative <- task$negative
           message("Setting positive to '", task$positive, "'")
+          message("Setting negative to '", task$negative, "'")
         } else {
           stop(paste0("Please provide a target with a least ",
                       "2 levels for classification tasks"))
@@ -53,7 +55,9 @@ LearnerClassifLightGBM <- R6::R6Class(
 
         if (self$param_set$values[["objective"]] == "binary") {
           self$lgb_learner$positive <- task$positive
+          self$lgb_learner$negative <- task$negative
           message("Setting positive to '", task$positive, "'")
+          message("Setting negative to '", task$negative, "'")
         }
       }
 
