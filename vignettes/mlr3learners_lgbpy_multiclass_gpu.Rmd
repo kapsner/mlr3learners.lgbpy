@@ -92,15 +92,15 @@ Also the parameters `num_boost_round` and `early_stopping_rounds` can be set her
 
 ```{r}
 learner$id_col <- id_col
-learner$early_stopping_rounds <- 100
-learner$num_boost_round <- 5000
+learner$early_stopping_rounds <- 10
+learner$num_boost_round <- 100
 ```
 
 In order to use the GPU acceleration, the parameter `device_type = "gpu"` (default: "cpu") needs to be set. According to the [LightGBM parameter manual](https://lightgbm.readthedocs.io/en/latest/Parameters.html), 'it is recommended to use the smaller `max_bin` (e.g. 63) to get the better speed up'. 
 
 ```{r}
 learner$param_set$values <- list(
-  "learning_rate" = 0.01,
+  "learning_rate" = 0.1,
   "seed" = 17L,
   "metric" = "multi_logloss",
   "device_type" = "gpu",

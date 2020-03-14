@@ -88,8 +88,8 @@ Also the parameters `num_boost_round` and `early_stopping_rounds` can be set her
 
 ```{r}
 learner$id_col <- id_col
-learner$early_stopping_rounds <- 100
-learner$num_boost_round <- 5000
+learner$early_stopping_rounds <- 10
+learner$num_boost_round <- 100
 ```
 
 ```{r}

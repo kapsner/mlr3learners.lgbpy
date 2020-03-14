@@ -6,7 +6,7 @@
 \alias{mlr3learners.lgbpy-package}
 \title{mlr3learners.lgbpy: mlr3: LightGBM learner using its python module}
 \description{
-Brining the LightGBM functionality to the mlr3 framework using the lightgbm python module and reticulate.
+Brings the LightGBM functionality to the mlr3 framework using the lightgbm python module and reticulate.
 }
 \seealso{
 Useful links:

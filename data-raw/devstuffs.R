@@ -19,7 +19,7 @@ my_desc$set_authors(c(
 my_desc$del("Maintainer")
 
 # Set the version
-my_desc$set_version("0.0.2.9001")
+my_desc$set_version("0.0.2.9002")
 
 # The title of your package
 my_desc$set(Title = "mlr3: LightGBM learner using its python module")
@@ -118,7 +118,7 @@ usethis::use_git_ignore("!/vignettes/")
 usethis::use_git_ignore("!/README.md")
 usethis::use_git_ignore("!/tests/")
 usethis::use_git_ignore("/.Rhistory")
-usethis::use_git_ignore("/*.Rproj")
+usethis::use_git_ignore("!/*.Rproj")
 usethis::use_git_ignore("/.Rproj*")
 usethis::use_git_ignore("/.RData")
 

@@ -26,7 +26,9 @@ test_that(
         "helper.R" = NULL,
         "test-lints.R" = NULL,
         "test_learner_classif_lightgbm.R" = NULL,
-        "test_learner_regr_lightgbm.R" = NULL
+        "test-learner_classification.R" = NULL,
+        "test_learner_regr_lightgbm.R" = NULL,
+        "test-learner_regression.R" = NULL
       )
     )
     for (directory in names(lintlist)) {
